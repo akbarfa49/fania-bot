@@ -1,0 +1,42 @@
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = "fania-bot"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+primary_region = "sin"
+
+[experimental]
+auto_rollback = true
+
+[build]
+dockerfile = "Dockerfile"
+#buildpacks = ["gcr.io/paketo-buildpacks/go"]
+ignorefile = ".dockerignore"
+
+[env]
+PORT = "8080"
+
+[[services]]
+internal_port = 8080
+processes = ["app"]
+protocol = "tcp"
+
+[[services.ports]]
+force_https = true
+handlers = ["http"]
+port = 80
+
+[[services.ports]]
+handlers = ["tls", "http"]
+port = 443
+[services.concurrency]
+hard_limit = 25
+soft_limit = 20
+type = "connections"
+
+[[services.tcp_checks]]
+grace_period = "1s"
+interval = "15s"
+restart_limit = 0
+timeout = "2s"
